@@ -141,14 +141,29 @@ const App: React.FC = () => {
           <form className="form" onSubmit={handleSubmit}>
             <div className="form-row">
               <label className="label">Images</label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={addFiles}
-                className="file-input"
-              />
+              <div className="file-input-row">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={addFiles}
+                  className="file-input file-input-hidden"
+                  aria-label="Choose image files"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="file-input-trigger"
+                >
+                  Choose files
+                </button>
+                <span className="file-count">
+                  {entries.length > 0
+                    ? `${entries.length} file${entries.length !== 1 ? "s" : ""} added`
+                    : "Click to add images"}
+                </span>
+              </div>
               <p className="hint">
                 Choose one or more images; you can click again to add more.
                 Max 5MB per image.
