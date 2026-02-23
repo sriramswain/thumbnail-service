@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
 
+ENV PYTHONPATH=/app
 ENV THUMBNAIL_BASE_URL=${THUMBNAIL_BASE_URL:-http://localhost:8000}
 ENV PORT=8000
 EXPOSE 8000
