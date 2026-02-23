@@ -1,5 +1,5 @@
-# Local thumbnail storage (runtime-generated files)
-storage/
+# Local thumbnail storage (runtime-generated files, root only; do not ignore app/storage/)
+/storage/
 
 # Node (frontend)
 node_modules/
