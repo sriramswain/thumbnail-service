@@ -1,8 +1,12 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router as api_router
 from app.core.errors import register_exception_handlers
+
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").strip().split(",")
 
 
 def create_app() -> FastAPI:
@@ -12,7 +16,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
+        allow_origins=[o.strip() for o in CORS_ORIGINS if o.strip()],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

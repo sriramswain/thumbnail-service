@@ -53,6 +53,32 @@ pytest
 **CI**  
 On push or pull request to `main`/`master`, GitHub Actions runs tests (see [.github/workflows/ci.yml](.github/workflows/ci.yml)): checkout → Python 3.11 → install dependencies → `pytest`.
 
+## Deploy on DigitalOcean
+
+**Option A: App Platform (from GitHub)**
+
+1. In [DigitalOcean](https://cloud.digitalocean.com/) go to **Apps** → **Create App** → choose **GitHub** and select `thumbnail-service`.
+2. **Backend (API):**
+   - Add a **Component** → **Web Service**.
+   - Source: same repo, root. **Run command:** `uvicorn app.main:app --host 0.0.0.0 --port 8080` (App Platform often uses 8080; set **HTTP Port** to 8080 in the component).
+   - **Build command:** `pip install -r requirements.txt` (or leave empty and use a Dockerfile).
+   - **Env vars:** `THUMBNAIL_BASE_URL=https://your-api-url.on.digitalocean.app` (replace with the URL App Platform gives the API), and `CORS_ORIGINS=https://your-frontend-url.on.digitalocean.app` when you add a frontend.
+3. **Frontend (optional):** Add another component → **Static Site** (or **Web Service** if you build with Node). Source: same repo, **Source Directory** `frontend`. Build: `npm ci && npm run build`. Output directory: `dist`. Set **CORS_ORIGINS** on the API to this app’s URL.
+4. Deploy. Thumbnails are stored on the app’s filesystem; they are lost on redeploy unless you add a [Volume](https://docs.digitalocean.com/products/app-platform/how-to/manage-volumes/) or use object storage (e.g. Spaces).
+
+**Option B: Droplet (Docker)**
+
+1. Create a Droplet (Ubuntu). SSH in.
+2. Install Docker. Clone the repo (or pull the image if you use a registry).
+3. From the repo root: `docker build -t thumbnail-api . && docker run -d -p 8000:8000 -e THUMBNAIL_BASE_URL=http://YOUR_DROPLET_IP:8000 thumbnail-api`.
+4. Open `http://YOUR_DROPLET_IP:8000/docs`. To serve the frontend, build it locally (`cd frontend && npm run build`), then serve the `dist/` folder with nginx or another web server on the same Droplet, and set `CORS_ORIGINS` to that URL.
+
+**Env vars (production)**
+
+- `THUMBNAIL_BASE_URL` — public URL of the API (used in thumbnail URLs in responses).
+- `CORS_ORIGINS` — comma-separated allowed origins (e.g. your frontend URL).
+- `THUMBNAIL_STORAGE_ROOT` — optional; default is `./storage` (use a volume path in App Platform if you need persistence).
+
 ---
 
 API docs: `http://localhost:8000/docs`. Frontend: `http://localhost:5173`.
